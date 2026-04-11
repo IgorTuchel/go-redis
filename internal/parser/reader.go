@@ -62,8 +62,7 @@ func (r *Resp) parseInt() (Value, error) {
 	if err != nil {
 		return Value{}, err
 	}
-
-	v := Value{RType: "INTEGER", Num: intLine}
+	v := Value{RType: INTEGER, Num: intLine}
 
 	return v, nil
 }
@@ -74,7 +73,7 @@ func (r *Resp) parseString() (Value, error) {
 		return Value{}, err
 	}
 
-	v := Value{RType: "STRING", Str: string(line)}
+	v := Value{RType: STRING, Str: string(line)}
 
 	return v, nil
 }
@@ -85,7 +84,7 @@ func (r *Resp) parseError() (Value, error) {
 		return Value{}, err
 	}
 
-	v := Value{RType: "ERROR", Str: string(line)}
+	v := Value{RType: ERROR, Str: string(line)}
 
 	return v, nil
 }
@@ -97,7 +96,7 @@ func (r *Resp) parseBulk() (Value, error) {
 	}
 
 	if bulkLen == -1 {
-		return Value{RType: "NULL"}, nil
+		return Value{RType: NULL}, nil
 	}
 
 	buf := make([]byte, bulkLen)
@@ -112,7 +111,7 @@ func (r *Resp) parseBulk() (Value, error) {
 		return Value{}, err
 	}
 
-	v := Value{RType: "BULK", Bulk: string(buf)}
+	v := Value{RType: BULK, Bulk: string(buf)}
 
 	return v, nil
 }
@@ -123,7 +122,11 @@ func (r *Resp) parseArray() (Value, error) {
 		return Value{}, err
 	}
 
-	v := Value{RType: "ARRAY"}
+	if lenArray == -1 {
+		return Value{RType: NULL}, nil
+	}
+
+	v := Value{RType: ARRAY}
 
 	for i := 0; i < lenArray; i++ {
 		value, err := r.Read()

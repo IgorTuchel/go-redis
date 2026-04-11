@@ -6,10 +6,11 @@ const (
 	INTEGER = ':'
 	BULK    = '$'
 	ARRAY   = '*'
+	NULL    = '_'
 )
 
 type Value struct {
-	RType string
+	RType rune
 	Str   string
 	Bulk  string
 	Num   int
