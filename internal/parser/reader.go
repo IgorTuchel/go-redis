@@ -128,7 +128,7 @@ func (r *Resp) parseArray() (Value, error) {
 
 	v := Value{RType: ARRAY}
 
-	for i := 0; i < lenArray; i++ {
+	for range lenArray {
 		value, err := r.Read()
 		if err != nil {
 			return Value{}, err
