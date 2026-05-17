@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -16,8 +17,29 @@ type Entry struct {
 }
 
 func New() *Store {
-	return &Store{
+	store := &Store{
 		data: make(map[string]Entry),
+	}
+	go store.sweepExpiry()
+	return store
+}
+
+func (s *Store) sweepExpiry() {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	for range ticker.C {
+		s.sweep()
+	}
+}
+
+func (s *Store) sweep() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := time.Now()
+	for k, entry := range s.data {
+		if !entry.Expiry.IsZero() && now.After(entry.Expiry) {
+			delete(s.data, k)
+		}
 	}
 }
 
