@@ -20,7 +20,6 @@ func (r *Resp) Read() (Value, error) {
 	if err != nil {
 		return Value{}, err
 	}
-
 	switch rType {
 	case INTEGER:
 		return r.parseInt()

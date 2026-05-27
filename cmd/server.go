@@ -51,12 +51,11 @@ func handleConn(conn net.Conn, s *store.Store) {
 			return
 		}
 
-		fmt.Println("recieved: ", value)
+		// fmt.Println("recieved: ", value)
 
 		// TODO: Refactor into a command dispatcher
 		command := strings.ToUpper(value.Array[0].Bulk)
 		args := value.Array[1:]
-
 		switch command {
 		case "PING":
 			writer.Write(parser.Value{RType: parser.STRING, Str: "PONG"})
