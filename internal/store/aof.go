@@ -17,9 +17,21 @@ type AOF struct {
 	done chan struct{}
 }
 
-// TODO: Read function
-// Read from a file
-// Update the instance
+func NewAOF(path string) (*AOF, error) {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, err
+	}
+
+	aof := &AOF{
+		file: f,
+		buf:  bufio.NewWriter(f),
+		done: make(chan struct{}),
+	}
+	go aof.fsyncEverySecond()
+	return aof, nil
+}
+
 func (a *AOF) Read(fn func(parser.Value)) error {
 	a.mu.Lock()
 	a.buf.Flush()
@@ -44,22 +56,6 @@ func (a *AOF) Read(fn func(parser.Value)) error {
 	return nil
 }
 
-func NewAOF(path string) (*AOF, error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
-	if err != nil {
-		return nil, err
-	}
-
-	aof := &AOF{
-		file: f,
-		buf:  bufio.NewWriter(f),
-		done: make(chan struct{}),
-	}
-	go aof.fsyncEverySecond()
-	return aof, nil
-}
-
-// TODO: flush buffer and sync to disk
 func (a *AOF) fsyncEverySecond() {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
@@ -85,7 +81,6 @@ func (a *AOF) Close() error {
 	return a.file.Close()
 }
 
-// TODO: Write function
 func (a *AOF) Write(value parser.Value) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -99,4 +94,3 @@ func (a *AOF) Write(value parser.Value) error {
 	}
 	return nil
 }
-

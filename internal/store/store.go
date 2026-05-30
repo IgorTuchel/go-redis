@@ -42,7 +42,13 @@ func (s *Store) sweep() {
 	}
 }
 
-func (s *Store) Expire(key string, ttl time.Duration) bool {
+func (s *Store) Expire(key string, ttl time.Duration) (bool, time.Time) {
+	expiry := time.Now().Add(ttl)
+	ok := s.ExpireAt(key, expiry)
+	return ok, expiry
+}
+
+func (s *Store) ExpireAt(key string, expiry time.Time) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -50,7 +56,7 @@ func (s *Store) Expire(key string, ttl time.Duration) bool {
 	if !ok {
 		return false
 	}
-	entry.Expiry = time.Now().Add(ttl)
+	entry.Expiry = expiry
 	s.data[key] = entry
 	return true
 }
